@@ -131,6 +131,24 @@ jobs:
           
           echo "Dependency images ready"
 
+      - name: Clone upstream source code
+        if: steps.check-update.outputs.update_needed == 'true'
+        run: |
+          LATEST_VERSION="${{ steps.get-version.outputs.latest_version }}"
+          echo "Cloning upstream repository: ${{ env.UPSTREAM_REPO }}"
+          
+          # 克隆上游仓库
+          git clone --depth 1 https://github.com/${{ env.UPSTREAM_REPO }}.git /tmp/cutia-source
+          
+          # 如果指定了版本，切换到对应 commit
+          if [ -n "$LATEST_VERSION" ] && [ "$LATEST_VERSION" != "latest" ]; then
+            cd /tmp/cutia-source
+            git fetch --depth 1 origin $LATEST_VERSION || true
+            git checkout $LATEST_VERSION 2>/dev/null || echo "Using default branch"
+          fi
+          
+          echo "Source code cloned to /tmp/cutia-source"
+
       - name: Build and push image
         if: steps.check-update.outputs.update_needed == 'true'
         id: build-image
@@ -156,16 +174,16 @@ jobs:
             echo "Force build enabled, skipping existing image check"
           fi
 
-          # 使用当前仓库代码构建
-          cd ${{ github.workspace }}
+          # 使用克隆的上游源码构建
+          cd /tmp/cutia-source
           
-          # 获取版本
-          FULL_COMMIT=$(git rev-parse HEAD)
-          VERSION_TAG="${FULL_COMMIT:0:7}"
+          # 获取上游版本
+          UPSTREAM_COMMIT=$(git rev-parse HEAD)
+          VERSION_TAG="${UPSTREAM_COMMIT:0:7}"
           echo "Building version: $VERSION_TAG"
           
-          # 复制 Dockerfile.template 并构建
-          cp Dockerfile.template Dockerfile
+          # 复制 Dockerfile.template 到源码目录
+          cp ${{ github.workspace }}/Dockerfile.template ./Dockerfile
 
           # 构建镜像
           LOCAL_IMAGE="ghcr.io/${{ github.repository_owner }}/cutia:$VERSION_TAG"
