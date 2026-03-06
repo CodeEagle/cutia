@@ -156,19 +156,16 @@ jobs:
             echo "Force build enabled, skipping existing image check"
           fi
 
-          # 克隆上游源码
-          cd /tmp
-          rm -rf cutia
-          git clone --depth 1 https://github.com/msgbyte/cutia.git
-          cd cutia
-
-          # 获取完整 commit SHA
+          # 使用当前仓库代码构建
+          cd ${{ github.workspace }}
+          
+          # 获取版本
           FULL_COMMIT=$(git rev-parse HEAD)
           VERSION_TAG="${FULL_COMMIT:0:7}"
           echo "Building version: $VERSION_TAG"
-
+          
           # 复制 Dockerfile.template 并构建
-          cp ${{ github.workspace }}/Dockerfile.template Dockerfile
+          cp Dockerfile.template Dockerfile
 
           # 构建镜像
           LOCAL_IMAGE="ghcr.io/${{ github.repository_owner }}/cutia:$VERSION_TAG"
