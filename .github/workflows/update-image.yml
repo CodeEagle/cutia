@@ -126,6 +126,9 @@ jobs:
         env:
           LZC_CLI_TOKEN: ${{ secrets.LZC_CLI_TOKEN }}
         run: |
+          DEFAULT_POSTGRES_URL="registry.lazycat.cloud/library/postgres:16-alpine"
+          DEFAULT_REDIS_URL="registry.lazycat.cloud/library/redis:7-alpine"
+
           POSTGRES_EXISTING=$(lzc-cli appstore my-images 2>&1 | grep "postgres:16-alpine" | grep -oE 'registry\.lazycat\.cloud/[a-zA-Z0-9_/.:-]+' | head -1 || echo "")
           if [ -n "$POSTGRES_EXISTING" ]; then
             POSTGRES_URL="$POSTGRES_EXISTING"
@@ -142,8 +145,15 @@ jobs:
             REDIS_URL=$(echo "$COPY_OUTPUT" | grep -oE 'registry\.lazycat\.cloud/[a-zA-Z0-9_/.:-]+' | head -1 || echo "")
           fi
 
-          [ -n "$POSTGRES_URL" ] || { echo "Failed to copy postgres image"; exit 1; }
-          [ -n "$REDIS_URL" ] || { echo "Failed to copy redis image"; exit 1; }
+          if [ -z "$POSTGRES_URL" ]; then
+            echo "Falling back to default postgres image"
+            POSTGRES_URL="$DEFAULT_POSTGRES_URL"
+          fi
+
+          if [ -z "$REDIS_URL" ]; then
+            echo "Falling back to default redis image"
+            REDIS_URL="$DEFAULT_REDIS_URL"
+          fi
 
           echo "postgres_url=$POSTGRES_URL" >> "$GITHUB_OUTPUT"
           echo "redis_url=$REDIS_URL" >> "$GITHUB_OUTPUT"
