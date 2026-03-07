@@ -34,7 +34,7 @@ services:
       - redis
     binds:
       - /lzcapp/var/data/cutia:/data
-    command: "/sbin/tini -- sh -c 'for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do pg_isready -h postgres -p 5432 -U cutia 2>/dev/null && echo PostgreSQL is ready && break; sleep 2; done; for i in 1 2 3 4 5; do redis-cli -h redis ping 2>/dev/null && echo Redis is ready && break; sleep 1; done; mkdir -p /data && bun run start'"
+    command: sh -lc 'mkdir -p /data && exec bun run start'
 
   postgres:
     image: registry.lazycat.cloud/invokerlaw/codeeagle/cutia:7af73cb1940a2faf
