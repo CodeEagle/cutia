@@ -3,7 +3,7 @@ package: fun.selfstudio.app.migration.cutia
 version: 0.1.0
 min_os_version: 1.3.8
 name: Cutia
-description: Privacy-first, open-source video editing in browser
+description: (LazyCat Auto-build) Privacy-first, open-source video editing in browser
 license: MIT
 homepage: https://cutia.msgbyte.com
 author: msgbyte
@@ -54,7 +54,7 @@ services:
 locales:
   en:
     name: Cutia
-    description: Privacy-first, open-source video editing in browser
+    description: (LazyCat Auto-build) Privacy-first, open-source video editing in browser
   zh:
     name: Cutia
-    description: 开源浏览器视频编辑器，隐私优先
+    description: （懒猫微服自动构建）开源浏览器视频编辑器，隐私优先
